@@ -5,16 +5,12 @@
 #include <Arduino.h>
 #include <sstream>
 
-#include <WiFi.h>
-
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 
-#define LED_ONBOARD   2
-#define OUTPUT_PIN    13
-
+#define LED_ONBOARD   22
 
 /*  Duration of BLE scan
 
@@ -48,10 +44,7 @@ void setup() {
   Serial.println("BLEDevice init...");
 
   pinMode(LED_ONBOARD, OUTPUT);
-  pinMode(OUTPUT_PIN, OUTPUT);
-
   digitalWrite(LED_ONBOARD, HIGH);
-  digitalWrite(OUTPUT_PIN, LOW);
 
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
@@ -68,11 +61,8 @@ void loop() {
   for (int i = 0; i < count; i++)
   {
     BLEAdvertisedDevice d = foundDevices.getDevice(i);
-    digitalWrite(LED_ONBOARD, !digitalRead(LED_ONBOARD));
 
     if (d.getName() == "Mi Band 3") {
-      digitalWrite(LED_ONBOARD, !digitalRead(LED_ONBOARD));
-
       char deviceBuffer[100];
       deviceName = d.getName().c_str();
       deviceAddress = d.getAddress().toString().c_str();
@@ -83,11 +73,11 @@ void loop() {
 
       if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -80)
       {
-        digitalWrite(OUTPUT_PIN, HIGH);
+        digitalWrite(LED_ONBOARD, LOW); // Turn on LED
       }
       else
       {
-        digitalWrite(OUTPUT_PIN, LOW);
+        digitalWrite(LED_ONBOARD, HIGH); // Turn off LED
       }
     }
   }
