@@ -35,7 +35,7 @@ uint16_t countDevice;
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       /* unComment when you want to see devices found */
-      //      Serial.printf("Found device: %s \n", advertisedDevice.toString().c_str());
+      Serial.printf("Found device: %s \n", advertisedDevice.toString().c_str());
     }
 };
 
@@ -44,7 +44,7 @@ void setup() {
   Serial.println("BLEDevice init...");
 
   pinMode(LED_ONBOARD, OUTPUT);
-  digitalWrite(LED_ONBOARD, HIGH);
+  digitalWrite(LED_ONBOARD, LOW);
 
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
@@ -73,11 +73,11 @@ void loop() {
 
       if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -80)
       {
-        digitalWrite(LED_ONBOARD, LOW); // Turn on LED
+        digitalWrite(LED_ONBOARD, HIGH); // Turn on LED
       }
       else
       {
-        digitalWrite(LED_ONBOARD, HIGH); // Turn off LED
+        digitalWrite(LED_ONBOARD, LOW); // Turn off LED
       }
     }
   }
