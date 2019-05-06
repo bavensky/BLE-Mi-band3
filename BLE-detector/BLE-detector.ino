@@ -10,6 +10,7 @@
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 
+#define OUTPUT_PIN 13
 #define SCAN_TIME  1 // seconds
 BLEScan* pBLEScan;
 
@@ -20,18 +21,22 @@ uint16_t countDevice;
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
-      Serial.printf("Found device: %s \n", advertisedDevice.toString().c_str());
+      //      Serial.printf("Found device: %s \n", advertisedDevice.toString().c_str());
     }
 };
 
 void setup() {
   Serial.begin(115200);
   Serial.println("BLEDevice init...");
+
+  pinMode(OUTPUT_PIN, OUTPUT);
+  digitalWrite(OUTPUT_PIN, LOW);
+
   BLEDevice::init("");
-  pBLEScan = BLEDevice::getScan(); //create new scan
+  pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
-  pBLEScan->setInterval(100);
+  pBLEScan->setInterval(100); // Set the interval to scan (mSecs)
   pBLEScan->setWindow(99);  // less or equal setInterval value
 }
 
@@ -48,12 +53,18 @@ void loop() {
       deviceAddress = d.getAddress().toString().c_str();
       deviceRSSI = d.getRSSI();
 
-      if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -70) {
-        sprintf(deviceBuffer, "Name: %s| Address: %s| RSSI: %d\n", deviceName.c_str(), deviceAddress.c_str(), deviceRSSI);
-        Serial.print(deviceBuffer);
+      sprintf(deviceBuffer, "Name: %s| Address: %s| RSSI: %d\n", deviceName.c_str(), deviceAddress.c_str(), deviceRSSI);
+      Serial.print(deviceBuffer);
+
+      if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -70)
+      {
+        digitalWrite(OUTPUT_PIN, HIGH);
+      }
+      else
+      {
+        digitalWrite(OUTPUT_PIN, LOW);
       }
     }
   }
-
   pBLEScan->clearResults();
 }
