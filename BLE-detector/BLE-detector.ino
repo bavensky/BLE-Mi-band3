@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include <sstream>
 
+#include <WiFi.h>
+
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEScan.h>
@@ -47,6 +49,7 @@ void loop() {
   for (int i = 0; i < count; i++)
   {
     BLEAdvertisedDevice d = foundDevices.getDevice(i);
+
     if (d.getName() == "Mi Band 3") {
       char deviceBuffer[100];
       deviceName = d.getName().c_str();
