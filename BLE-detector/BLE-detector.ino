@@ -12,8 +12,23 @@
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 
-#define OUTPUT_PIN 13
-#define SCAN_TIME  1 // seconds
+#define LED_ONBOARD   2
+#define OUTPUT_PIN    13
+
+
+/*  Duration of BLE scan
+
+    ==============                  ==============                   ==============
+    =   WINDOW   =  ===INTERVAL===  =   WINDOW   =  ===INTERVAL===   =   WINDOW   =
+    ==============                  ==============                   ==============
+    ===============================================================================
+    =                                  SCAN TIME                                  =
+    ===============================================================================
+*/
+#define SCAN_TIME       1  // seconds
+#define INTERVAL_TIME   200   // (mSecs)
+#define WINDOW_TIME     100   // less or equal setInterval value
+
 BLEScan* pBLEScan;
 
 String deviceName;
@@ -23,6 +38,7 @@ uint16_t countDevice;
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
+      /* unComment when you want to see devices found */
       //      Serial.printf("Found device: %s \n", advertisedDevice.toString().c_str());
     }
 };
@@ -31,15 +47,18 @@ void setup() {
   Serial.begin(115200);
   Serial.println("BLEDevice init...");
 
+  pinMode(LED_ONBOARD, OUTPUT);
   pinMode(OUTPUT_PIN, OUTPUT);
+
+  digitalWrite(LED_ONBOARD, HIGH);
   digitalWrite(OUTPUT_PIN, LOW);
 
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
-  pBLEScan->setInterval(100); // Set the interval to scan (mSecs)
-  pBLEScan->setWindow(99);  // less or equal setInterval value
+  pBLEScan->setInterval(INTERVAL_TIME); // Set the interval to scan (mSecs)
+  pBLEScan->setWindow(WINDOW_TIME);  // less or equal setInterval value
 }
 
 void loop() {
@@ -49,8 +68,11 @@ void loop() {
   for (int i = 0; i < count; i++)
   {
     BLEAdvertisedDevice d = foundDevices.getDevice(i);
+    digitalWrite(LED_ONBOARD, !digitalRead(LED_ONBOARD));
 
     if (d.getName() == "Mi Band 3") {
+      digitalWrite(LED_ONBOARD, !digitalRead(LED_ONBOARD));
+
       char deviceBuffer[100];
       deviceName = d.getName().c_str();
       deviceAddress = d.getAddress().toString().c_str();
@@ -59,7 +81,7 @@ void loop() {
       sprintf(deviceBuffer, "Name: %s| Address: %s| RSSI: %d\n", deviceName.c_str(), deviceAddress.c_str(), deviceRSSI);
       Serial.print(deviceBuffer);
 
-      if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -70)
+      if (deviceAddress == "e6:37:63:e7:2f:4b" && deviceRSSI > -80)
       {
         digitalWrite(OUTPUT_PIN, HIGH);
       }
