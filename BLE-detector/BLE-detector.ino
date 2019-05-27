@@ -32,6 +32,10 @@ String deviceAddress;
 int16_t deviceRSSI;
 uint16_t countDevice;
 
+
+boolean check;
+int count_stable = 0; 
+
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       /* unComment when you want to see devices found */
@@ -63,6 +67,9 @@ void loop() {
     BLEAdvertisedDevice d = foundDevices.getDevice(i);
 
     if (d.getName() == "Mi Band 3") {
+      check = true;
+      count_stable =0;
+       
       char deviceBuffer[100];
       deviceName = d.getName().c_str();
       deviceAddress = d.getAddress().toString().c_str();
@@ -78,8 +85,22 @@ void loop() {
       else
       {
         digitalWrite(LED_ONBOARD, LOW); // Turn off LED
+        Serial.println("OFF");
+      }
+      //---------------------------------------------------------Check if not found Mi Band-------------------------------------
+    }else if(i == count-1 && check == false){
+      count_stable +=1;
+      if(count_stable ==20){ // set limit to reset counter
+        count_stable =0;
+      }
+      Serial.println(count_stable);
+      if(count_stable == 4){ //set quantity of scan cycle for accept missing Mi Band
+      digitalWrite(LED_ONBOARD, LOW); 
+        Serial.println("Not Found");
       }
     }
+      check = false;
+      //---------------------------------------------------------------------------------------------------------------------------
   }
   pBLEScan->clearResults();
 }
